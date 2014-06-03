@@ -3,19 +3,31 @@
 #include <QFrame>
 #include <QPainter>
 #include <QTimer>
+#include <cmath>
 
-class Tori
+class Tori : public QWidget
 {
+    Q_OBJECT
 public:
     Tori();
     ~Tori();
     void ziehen(QPainter& paint);
+    void flapUp();
+    void move(float dt);
+    bool getMorto();
+    bool getCanDown();
+    void setCanDown(bool canDown);
 
-private slots:
+public slots:
     void cair();
 
 private:
-    int posicaoToriX;
-    int posicaoToriY;
+    double fps;
+    float vConstante, vMax, vPulo, gravidade;
+    int posicaoToriY, posicaoDy, toriSize;
+
+    bool morto, canDown;
     QTimer* timer;
+
+    void detectarColisaoChao();
 };

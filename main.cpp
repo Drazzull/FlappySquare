@@ -19,6 +19,7 @@ int main(int argc, char **argv)
     // Propriedades do form
     QMainWindow window;
     window.setCentralWidget(frmJogo);
+    frmJogo->setFocus();
     window.setFixedSize(400, 600);
     window.show();
 
