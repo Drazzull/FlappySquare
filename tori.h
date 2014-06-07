@@ -1,3 +1,5 @@
+#pragma once
+
 #include <QT>
 #include <QMainWindow>
 #include <QFrame>
@@ -9,24 +11,25 @@ class Tori : public QWidget
 {
     Q_OBJECT
 public:
+    /* Normais */
     Tori();
     ~Tori();
     void ziehen(QPainter& paint);
     void flapUp();
     void move(float dt);
-    bool getMorto();
-    bool getCanDown();
-    void setCanDown(bool canDown);
+    void reset();
+
+    /* Estáticos */
+    static bool morto;
 
 public slots:
     void cair();
 
 private:
+    /* Normais */
     double fps;
-    float vConstante, vMax, vPulo, gravidade;
-    int posicaoToriY, posicaoDy, toriSize;
-
-    bool morto, canDown;
+    int posicaoToriY, posicaoDy, toriSize, gravidade;
+    int contadorPlanar;
     QTimer* timer;
 
     void detectarColisaoChao();

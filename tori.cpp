@@ -1,18 +1,26 @@
-#include "tori.h"
+#include <tori.h>
+#include <frmjogo.h>
+bool Tori::morto = false;
+
+void Tori::reset()
+{
+    /*this->velocidadeVoo = -515.0f;
+    this->velocidadeMaxima = 680.0f;*/
+    this->gravidade = 0.0;
+    this->fps = 2.0;
+    this->posicaoToriY = 230;
+    this->posicaoDy = 1;
+    Tori::morto = false;
+    this->toriSize = 40;
+    this->timer->stop();
+    this->timer->start(100);
+}
 
 Tori::Tori()
 {
-    this->canDown = false;
-    this->vPulo = -515;
-    this->vMax = 680.0;
-    this->gravidade = 2000;
-    this->fps = 2.0;
-    this->posicaoToriY = 100;
-    this->posicaoDy = 0;
-    this->morto = false;
-    this->toriSize = 40;
     this->timer = new QTimer(this);
-    this->timer->start(100);
+    this->contadorPlanar = -5;
+    this->reset();
 
     QObject::connect(this->timer, SIGNAL(timeout()),
                      this, SLOT(cair()));
@@ -23,26 +31,18 @@ Tori::~Tori()
 
 }
 
-bool Tori::getMorto()
-{
-    return this->morto;
-}
-
-bool Tori::getCanDown()
-{
-    return this->canDown;
-}
-
-void Tori::setCanDown(bool canDown)
-{
-    this->canDown = canDown;
-}
-
 void Tori::move(float dt)
 {
+    // Se está morto não realiza update
+    if (Tori::morto)
+    {
+        return;
+    }
+
     /* Atualiza a posição do pássaro */
     if (this->posicaoDy > 0)
     {
+
         this->posicaoToriY += std::ceil((this->posicaoDy * dt * 60) / 1000);
     }
     else
@@ -58,7 +58,16 @@ void Tori::move(float dt)
 
 void Tori::ziehen(QPainter &paint)
 {
-    paint.drawRect(100, this->posicaoToriY, this->toriSize, this->toriSize);
+    paint.setBrush(Qt::red);
+    paint.setPen(Qt::red);
+
+    if (FrmJogo::started)
+    {
+        paint.drawRect(70, this->posicaoToriY, this->toriSize, this->toriSize);
+        return;
+    }
+
+    paint.drawRect(170, this->posicaoToriY, this->toriSize, this->toriSize);
 }
 
 void Tori::detectarColisaoChao()
@@ -67,33 +76,27 @@ void Tori::detectarColisaoChao()
     {
         this->posicaoDy = 0;
         this->posicaoToriY = 560;
-        this->morto = true;
+        Tori::morto = true;
     }
 }
 
 void Tori::cair()
 {
-    if (!this->canDown)
+    if (!FrmJogo::started)
     {
         return;
     }
 
-    if (this->morto)
+    this->posicaoDy += 2 * this->gravidade;
+    this->gravidade += 2;
+    if (this->gravidade >= 20)
     {
-        this->posicaoDy = 0;
-        return;
+        this->gravidade = 20;
     }
-
-    this->posicaoDy = 20;
 }
 
 void Tori::flapUp()
 {
-    if (this->morto)
-    {
-        this->posicaoDy = 0;
-        return;
-    }
-    this->posicaoDy = -60;
+    this->gravidade = 2;
+    this->posicaoDy -= 70;
 }
-

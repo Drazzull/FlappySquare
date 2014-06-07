@@ -13,3 +13,6 @@ HEADERS += \
     tori.h \
     wand.h \
     frmjogo.h
+
+RESOURCES += \
+    Imagens.qrc

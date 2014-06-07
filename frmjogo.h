@@ -4,6 +4,7 @@
 #include <QPainter>
 #include <QMouseEvent>
 #include <QKeyEvent>
+#include <QLCDNumber>
 #include <QTimer>
 #include <QDateTime>
 #include <tori.h>
@@ -15,23 +16,25 @@ class FrmJogo: public QFrame
 public:
     FrmJogo();
     ~FrmJogo();
+    static bool started;
 
 private slots:
-    void callWand();
     void tick();
 
 private:
-    QTimer *timerRepaint, *timerWand;
+    QTimer *timerRepaint;
     Tori *tori;
     Wand *wand;
+    QFont *font;
 
     int fps;
-    int counter;
+    int pontosJogador;
     float constantDt;
-    bool started;
     qint64 lastTime, accumulator60;
 
+    void reset();
     void paintEvent(QPaintEvent* event);
     void mousePressEvent(QMouseEvent* event);
+    void mouseMoveEvent(QMouseEvent* event);
     void keyPressEvent(QKeyEvent *event);
 };

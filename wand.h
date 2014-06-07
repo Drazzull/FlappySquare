@@ -1,9 +1,12 @@
+#pragma once
+
 #include <QT>
 #include <QMainWindow>
 #include <QFrame>
 #include <QPainter>
 #include <QTimer>
 #include <cmath>
+#include <tori.h>
 
 class Wand : public QWidget
 {
@@ -13,14 +16,18 @@ public:
     ~Wand();
     void ziehen(QPainter& paint);
     void move(float dt);
-    void callWand(bool started, bool morto);
+    void reset();
 
-public slots:
+private slots:
     void moveLeft();
+    void callWandI();
+    void callWandII();
 
 private:
     QVector<QPoint> posicoesWandUp, posicoesWandDown;
     int posicaoDx, falhaEntreCanos;
+    int posicaoYCanoUpI, posicaoYCanoUpII, posicaoXCanoUpI, posicaoXCanoUpII;
+    int posicaoYCanoDownI, posicaoYCanoDownII, posicaoXCanoDownI, posicaoXCanoDownII;
     bool showWand;
-    QTimer* timer;
+    QTimer *timerMove, *timerCallI, *timerCallII;
 };

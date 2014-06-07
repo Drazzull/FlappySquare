@@ -1,35 +1,33 @@
 #include "frmjogo.h"
-
 #include <QDebug>
+bool FrmJogo::started = false;
 
-FrmJogo::FrmJogo()
+void FrmJogo::reset()
 {
-    this->started = false;
+    this->pontosJogador = 0;
+    FrmJogo::started = false;
     this->fps = 60;
     this->constantDt = 1000 / this->fps;
     this->lastTime = QDateTime::currentMSecsSinceEpoch();
     this->accumulator60 = 0;
+}
 
-    this->setFrameShape(QFrame::StyledPanel);
-    this->setFrameShadow(QFrame::Sunken);
-    this->setMinimumSize(400, 800);
-    this->setMaximumSize(400, 800);
-
+FrmJogo::FrmJogo()
+{
     this->timerRepaint = new QTimer(this);
-    this->timerRepaint->start(60);
-
-    // Gera um número de tempo aleatório entre 5s e 7s para gerar as paredes
-    int tempo = rand() % 7000 + 5000;
-    this->timerWand = new QTimer(this);
-    this->timerWand->start(tempo);
     this->tori = new Tori();
     this->wand = new Wand();
 
+    this->setMinimumSize(400, 800);
+    this->setMaximumSize(400, 800);
+    this->setStyleSheet("background-image: url(:/img/Background.jpg);");
+
+    this->timerRepaint->start(60);
+    //    this->setMouseTracking(true);
+    this->reset();
+
     QObject::connect(this->timerRepaint, SIGNAL(timeout()),
                      this, SLOT(repaint()));
-
-    QObject::connect(this->timerWand, SIGNAL(timeout()),
-                     this, SLOT(callWand()));
 
     // Start timer
     QTimer::singleShot(1000/this->fps, this, SLOT(tick()));
@@ -67,46 +65,81 @@ void FrmJogo::tick()
     QTimer::singleShot(1000/this->fps, this, SLOT(tick()));
 }
 
-void FrmJogo::callWand()
-{
-    this->wand->callWand(this->started, this->tori->getMorto());
-}
-
 void FrmJogo::paintEvent(QPaintEvent* event)
 {
     QFrame::paintEvent(event);
 
     // Insere o quadrado verde
     QPainter paint(this);
-    paint.setPen(Qt::red);
-    paint.setBrush(Qt::red);
 
     QFont font = paint.font();
     font.setFamily("Consolas");
+    font.setPointSize(font.pointSize() * 2);
     paint.setFont(font);
 
     this->tori->ziehen(paint);
     this->wand->ziehen(paint);
+
+    paint.setPen(Qt::black);
+    paint.setBrush(Qt::black);
+    paint.drawText(180, 60, QString::number(this->pontosJogador));
+    if (!FrmJogo::started)
+    {
+        paint.drawText(100, 130, "Press Space");
+    }
+
+    if (Tori::morto)
+    {
+        paint.drawText(100, 130, " GAMEOVER! ");
+        paint.drawText(100, 160, "Press Space");
+    }
 }
 
 void FrmJogo::keyPressEvent(QKeyEvent *event)
 {
     QFrame::keyPressEvent(event);
 
-    if ((event->key() == Qt::Key_Space) || (event->key() == Qt::Key_Return))
+    if (event->key() == Qt::Key_Space)
     {
+        if (Tori::morto)
+        {
+            this->reset();
+            this->tori->reset();
+            this->wand->reset();
+        }
 
-        this->started = true;
-        this->tori->setCanDown(true);
+        if (!FrmJogo::started)
+        {
+            FrmJogo::started = true;
+        }
 
         this->tori->flapUp();
     }
 }
 
-void FrmJogo::mousePressEvent(QMouseEvent* event) {
+void FrmJogo::mousePressEvent(QMouseEvent* event)
+{
     QFrame::mousePressEvent(event);
 
-    this->started = true;
-    this->tori->setCanDown(true);
+    if (Tori::morto)
+    {
+        this->reset();
+        this->tori->reset();
+        this->wand->reset();
+    }
+
+    if (!FrmJogo::started)
+    {
+        FrmJogo::started = true;
+    }
+
     this->tori->flapUp();
+}
+
+void FrmJogo::mouseMoveEvent(QMouseEvent* event)
+{
+    QFrame::mouseMoveEvent(event);
+
+    //    qDebug() << "X: " << event->pos().x();
+    //    qDebug() << "Y: " << event->pos().y();
 }
