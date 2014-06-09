@@ -1,17 +1,20 @@
 #include <tori.h>
 #include <frmjogo.h>
+#include <wand.h>
+#include <QDebug>
+#include <funcoes.h>
+
 bool Tori::morto = false;
 
 void Tori::reset()
 {
-    /*this->velocidadeVoo = -515.0f;
-    this->velocidadeMaxima = 680.0f;*/
     this->gravidade = 0.0;
     this->fps = 2.0;
     this->posicaoToriY = 230;
     this->posicaoDy = 1;
     Tori::morto = false;
-    this->toriSize = 40;
+    this->toriHeight = 22;
+    this->toriWidth = 27;
     this->timer->stop();
     this->timer->start(100);
 }
@@ -29,6 +32,21 @@ Tori::Tori()
 Tori::~Tori()
 {
 
+}
+
+int Tori::getPosicaoToriY()
+{
+    return this->posicaoToriY;
+}
+
+int Tori::getToriX()
+{
+    return (70 + this->toriWidth);
+}
+
+int Tori::getToriHeight()
+{
+    return this->toriHeight;
 }
 
 void Tori::move(float dt)
@@ -52,8 +70,6 @@ void Tori::move(float dt)
 
     // Zera a variável para que o mesmo se mova somente quando necessário
     this->posicaoDy = 0;
-
-    this->detectarColisaoChao();
 }
 
 void Tori::ziehen(QPainter &paint)
@@ -61,37 +77,27 @@ void Tori::ziehen(QPainter &paint)
     paint.setBrush(Qt::red);
     paint.setPen(Qt::red);
 
-    if (FrmJogo::started)
+    if (Funcoes::started)
     {
-        paint.drawRect(70, this->posicaoToriY, this->toriSize, this->toriSize);
+        paint.drawRect(70, this->posicaoToriY, this->toriWidth, this->toriHeight);
         return;
     }
 
-    paint.drawRect(170, this->posicaoToriY, this->toriSize, this->toriSize);
-}
-
-void Tori::detectarColisaoChao()
-{
-    if(this->posicaoToriY >= 600)
-    {
-        this->posicaoDy = 0;
-        this->posicaoToriY = 560;
-        Tori::morto = true;
-    }
+    paint.drawRect(170, this->posicaoToriY, this->toriWidth, this->toriHeight);
 }
 
 void Tori::cair()
 {
-    if (!FrmJogo::started)
+    if (!Funcoes::started)
     {
         return;
     }
 
     this->posicaoDy += 2 * this->gravidade;
     this->gravidade += 2;
-    if (this->gravidade >= 20)
+    if (this->gravidade >= 30)
     {
-        this->gravidade = 20;
+        this->gravidade = 30;
     }
 }
 

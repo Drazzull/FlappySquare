@@ -18,6 +18,9 @@ public:
     void flapUp();
     void move(float dt);
     void reset();
+    int getPosicaoToriY();
+    int getToriX();
+    int getToriHeight();
 
     /* Estáticos */
     static bool morto;
@@ -28,9 +31,10 @@ public slots:
 private:
     /* Normais */
     double fps;
-    int posicaoToriY, posicaoDy, toriSize, gravidade;
+    int posicaoToriY, posicaoDy, gravidade, toriHeight, toriWidth;
     int contadorPlanar;
-    QTimer* timer;
+    QTimer *timer;
 
     void detectarColisaoChao();
+    void detectarColisaoCanos();
 };

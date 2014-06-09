@@ -1,11 +1,15 @@
-#include "frmjogo.h"
+#include <frmjogo.h>
+#include <funcoes.h>
+
 #include <QDebug>
-bool FrmJogo::started = false;
+
+int FrmJogo::heightFrm = 0;
+int FrmJogo::widthFrm = 0;
 
 void FrmJogo::reset()
 {
-    this->pontosJogador = 0;
-    FrmJogo::started = false;
+    Funcoes::pontosJogador = 0;
+    Funcoes::started = false;
     this->fps = 60;
     this->constantDt = 1000 / this->fps;
     this->lastTime = QDateTime::currentMSecsSinceEpoch();
@@ -18,12 +22,14 @@ FrmJogo::FrmJogo()
     this->tori = new Tori();
     this->wand = new Wand();
 
-    this->setMinimumSize(400, 800);
-    this->setMaximumSize(400, 800);
+    this->setMinimumSize(400, 600);
+    this->setMaximumSize(400, 600);
     this->setStyleSheet("background-image: url(:/img/Background.jpg);");
 
+    FrmJogo::heightFrm = this->height();
+    FrmJogo::widthFrm = this->width();
+
     this->timerRepaint->start(60);
-    //    this->setMouseTracking(true);
     this->reset();
 
     QObject::connect(this->timerRepaint, SIGNAL(timeout()),
@@ -82,8 +88,8 @@ void FrmJogo::paintEvent(QPaintEvent* event)
 
     paint.setPen(Qt::black);
     paint.setBrush(Qt::black);
-    paint.drawText(180, 60, QString::number(this->pontosJogador));
-    if (!FrmJogo::started)
+    paint.drawText(180, 60, QString::number(Funcoes::pontosJogador));
+    if (!Funcoes::started)
     {
         paint.drawText(100, 130, "Press Space");
     }
@@ -93,6 +99,9 @@ void FrmJogo::paintEvent(QPaintEvent* event)
         paint.drawText(100, 130, " GAMEOVER! ");
         paint.drawText(100, 160, "Press Space");
     }
+
+    Funcoes::detectarColisaoCanos(this->tori, this->wand);
+    Funcoes::detectarColisaoChao(this->tori->getPosicaoToriY());
 }
 
 void FrmJogo::keyPressEvent(QKeyEvent *event)
@@ -108,9 +117,9 @@ void FrmJogo::keyPressEvent(QKeyEvent *event)
             this->wand->reset();
         }
 
-        if (!FrmJogo::started)
+        if (!Funcoes::started)
         {
-            FrmJogo::started = true;
+            Funcoes::started = true;
         }
 
         this->tori->flapUp();
@@ -128,18 +137,10 @@ void FrmJogo::mousePressEvent(QMouseEvent* event)
         this->wand->reset();
     }
 
-    if (!FrmJogo::started)
+    if (!Funcoes::started)
     {
-        FrmJogo::started = true;
+        Funcoes::started = true;
     }
 
     this->tori->flapUp();
-}
-
-void FrmJogo::mouseMoveEvent(QMouseEvent* event)
-{
-    QFrame::mouseMoveEvent(event);
-
-    //    qDebug() << "X: " << event->pos().x();
-    //    qDebug() << "Y: " << event->pos().y();
 }

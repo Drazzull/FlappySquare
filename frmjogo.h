@@ -16,7 +16,7 @@ class FrmJogo: public QFrame
 public:
     FrmJogo();
     ~FrmJogo();
-    static bool started;
+    static int heightFrm, widthFrm;
 
 private slots:
     void tick();
@@ -28,13 +28,11 @@ private:
     QFont *font;
 
     int fps;
-    int pontosJogador;
     float constantDt;
     qint64 lastTime, accumulator60;
 
     void reset();
     void paintEvent(QPaintEvent* event);
     void mousePressEvent(QMouseEvent* event);
-    void mouseMoveEvent(QMouseEvent* event);
     void keyPressEvent(QKeyEvent *event);
 };

@@ -6,13 +6,14 @@ SOURCES += \
     tori.cpp \
     wand.cpp \
     frmjogo.cpp \
-    chamarGrafico.cpp
+    funcoes.cpp
 
 HEADERS += \
     grafico.h \
     tori.h \
     wand.h \
-    frmjogo.h
+    frmjogo.h \
+    funcoes.h
 
 RESOURCES += \
     Imagens.qrc

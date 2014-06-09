@@ -18,16 +18,24 @@ public:
     void move(float dt);
     void reset();
 
+    int getPosicaoXCanoUpI();
+    int getPosicaoXCanoDownI();
+    int getHeightCanoUpI();
+    int getPosicaoYCanoDownI();
+    int getPosicaoXCanoUpII();
+    int getPosicaoXCanoDownII();
+    int getHeightCanoUpII();
+    int getPosicaoYCanoDownII();
+
+
 private slots:
     void moveLeft();
     void callWandI();
     void callWandII();
 
 private:
-    QVector<QPoint> posicoesWandUp, posicoesWandDown;
-    int posicaoDx, falhaEntreCanos;
-    int posicaoYCanoUpI, posicaoYCanoUpII, posicaoXCanoUpI, posicaoXCanoUpII;
-    int posicaoYCanoDownI, posicaoYCanoDownII, posicaoXCanoDownI, posicaoXCanoDownII;
-    bool showWand;
+    int posicaoDx;
+    int posicaoXCanoUpI, posicaoXCanoUpII, heightCanoUpI, heightCanoUpII;
+    int posicaoYCanoDownI, posicaoYCanoDownII, posicaoXCanoDownI, posicaoXCanoDownII, heightCanoDownI, heightCanoDownII;
     QTimer *timerMove, *timerCallI, *timerCallII;
 };

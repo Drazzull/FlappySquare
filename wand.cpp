@@ -1,5 +1,6 @@
 #include <wand.h>
 #include <frmjogo.h>
+#include <funcoes.h>
 
 void Wand::reset()
 {
@@ -10,9 +11,19 @@ void Wand::reset()
     this->timerCallI->start(60);
     this->timerCallII->start(60);
     this->posicaoDx = 0;
-    this->showWand = false;
-    this->posicoesWandUp.clear();
-    this->posicoesWandDown.clear();
+
+    // Localização e dimensões do cano
+    this->posicaoXCanoUpI = 0;
+    this->posicaoXCanoUpII = 0;
+    this->posicaoXCanoDownI = 0;
+    this->posicaoXCanoDownII = 0;
+    this->posicaoYCanoDownI = 0;
+    this->posicaoYCanoDownII = 0;
+
+    this->heightCanoUpI = 0;
+    this->heightCanoUpII = 0;
+    this->heightCanoDownI = 0;
+    this->heightCanoDownII = 0;
 }
 
 Wand::Wand()
@@ -37,14 +48,55 @@ Wand::~Wand()
 
 }
 
+int Wand::getPosicaoXCanoUpI()
+{
+    return this->posicaoXCanoUpI;
+}
+
+int Wand::getPosicaoXCanoDownI()
+{
+    return this->posicaoXCanoDownI;
+}
+
+int Wand::getHeightCanoUpI()
+{
+    return this->heightCanoUpI;
+}
+
+int Wand::getPosicaoYCanoDownI()
+{
+    return this->posicaoYCanoDownI;
+}
+
+int Wand::getPosicaoXCanoUpII()
+{
+    return this->posicaoXCanoUpII;
+}
+
+int Wand::getPosicaoXCanoDownII()
+{
+    return this->posicaoXCanoDownII;
+}
+
+int Wand::getHeightCanoUpII()
+{
+    return this->heightCanoUpII;
+}
+
+int Wand::getPosicaoYCanoDownII()
+{
+    return this->posicaoYCanoDownII;
+}
+
 void Wand::callWandI()
 {
-    // Gera um número de tempo aleatório entre 5s e 7s para gerar as paredes
-    int tempo = rand() % 3000 + 5000;
-    this->timerCallI->stop();
-    this->timerCallI->start(tempo);
+    // Gera a próxima parede apenas se o X inicial for menor que -100
+    if (this->posicaoXCanoUpI > - 100)
+    {
+        return;
+    }
 
-    if (!FrmJogo::started)
+    if (!Funcoes::started)
     {
         return;
     }
@@ -54,45 +106,32 @@ void Wand::callWandI()
         return;
     }
 
-    this->showWand = true;
+    // A falha deve ficar entre 150 e 550
+    int falhaEntreCanos = FrmJogo::heightFrm - ((rand() % 400) + 150);
 
-    // A falha deve ficar entre 150 e 450
-    this->falhaEntreCanos = rand() % 300 + 150;
+    this->posicaoXCanoUpI = 430;
+    this->posicaoXCanoDownI = 430;
+    this->posicaoYCanoDownI = (falhaEntreCanos + 100);
 
-    // Limpa os canos
-    this->posicoesWandUp.clear();
-    this->posicoesWandDown.clear();
-
-    // Redimensiona o cano de cima
-    this->posicoesWandUp.append(QPoint(480, -10));
-    this->posicoesWandUp.append(QPoint(480, (this->falhaEntreCanos - 100)));
-    this->posicoesWandUp.append(QPoint(490, (this->falhaEntreCanos - 90)));
-    this->posicoesWandUp.append(QPoint(490, (this->falhaEntreCanos - 60)));
-    this->posicoesWandUp.append(QPoint(430, (this->falhaEntreCanos - 60)));
-    this->posicoesWandUp.append(QPoint(430, (this->falhaEntreCanos - 90)));
-    this->posicoesWandUp.append(QPoint(440, (this->falhaEntreCanos - 100)));
-    this->posicoesWandUp.append(QPoint(440, -10));
-
-
-    // Redimensiona o cano de baixo
-    this->posicoesWandDown.append(QPoint(480, 700));
-    this->posicoesWandDown.append(QPoint(480, (this->falhaEntreCanos + 120)));
-    this->posicoesWandDown.append(QPoint(490, (this->falhaEntreCanos + 110)));
-    this->posicoesWandDown.append(QPoint(490, (this->falhaEntreCanos + 80)));
-    this->posicoesWandDown.append(QPoint(430, (this->falhaEntreCanos + 80)));
-    this->posicoesWandDown.append(QPoint(430, (this->falhaEntreCanos + 110)));
-    this->posicoesWandDown.append(QPoint(440, (this->falhaEntreCanos + 120)));
-    this->posicoesWandDown.append(QPoint(440, 700));
+    this->heightCanoUpI = (falhaEntreCanos);
+    this->heightCanoDownI = (450);
 }
 
 void Wand::callWandII()
 {
-    // Gera um número de tempo aleatório entre 5s e 7s para gerar as paredes
-    int tempo = rand() % 3000 + 5000;
-    this->timerCallII->stop();
-    this->timerCallII->start(tempo);
+    // Gera a próxima parede apenas se o X inicial for menor que -100
+    if (this->posicaoXCanoUpII > - 100)
+    {
+        return;
+    }
 
-    if (!FrmJogo::started)
+    // Gera a próxima parede se a posição X do cano I tiver passado da metade da tela
+    if (((this->posicaoXCanoUpI + 35) > (FrmJogo::widthFrm / 2)) || (this->posicaoXCanoUpI <= -100) )
+    {
+        return;
+    }
+
+    if (!Funcoes::started)
     {
         return;
     }
@@ -101,31 +140,26 @@ void Wand::callWandII()
     {
         return;
     }
+
+    // A falha deve ficar entre 150 e 550
+    int falhaEntreCanos = FrmJogo::heightFrm - ((rand() % 400) + 150);
+
+    this->posicaoXCanoUpII = 430;
+    this->posicaoXCanoUpII = 430;
+    this->posicaoXCanoDownII = 430;
+    this->posicaoYCanoDownII = (falhaEntreCanos + 100);
+
+    this->heightCanoUpII = (falhaEntreCanos);
+    this->heightCanoDownII = (450);
 }
 
 void Wand::move(float dt)
 {
-    if (!this->showWand)
-    {
-        return;
-    }
+    this->posicaoXCanoUpI += std::floor((this->posicaoDx * dt * 60) / 1000);
+    this->posicaoXCanoDownI += std::floor((this->posicaoDx * dt * 60) / 1000);
 
-    if (Tori::morto)
-    {
-        return;
-    }
-
-    /* Atualiza a posição da parede de cima, sempre para a esquerda */
-    for(int i = 0; i < this->posicoesWandUp.size(); i++)
-    {
-        this->posicoesWandUp[i].setX(this->posicoesWandUp[i].x() + std::floor((this->posicaoDx * dt * 60) / 1000));
-    }
-
-    /* Atualiza a posição da parede de baixo, sempre para a esquerda */
-    for(int i = 0; i < this->posicoesWandDown.size(); i++)
-    {
-        this->posicoesWandDown[i].setX(this->posicoesWandDown[i].x() + std::floor((this->posicaoDx * dt * 60) / 1000));
-    }
+    this->posicaoXCanoUpII += std::floor((this->posicaoDx * dt * 60) / 1000);
+    this->posicaoXCanoDownII += std::floor((this->posicaoDx * dt * 60) / 1000);
 
     // Zera a variável para que o mesmo se mova somente quando necessário
     this->posicaoDx = 0;
@@ -133,7 +167,7 @@ void Wand::move(float dt)
 
 void Wand::moveLeft()
 {
-    if (!this->showWand)
+    if (!Funcoes::started)
     {
         return;
     }
@@ -147,11 +181,21 @@ void Wand::moveLeft()
 }
 
 void Wand::ziehen(QPainter &paint)
-{
+{   
+    if (!Funcoes::started)
+    {
+        return;
+    }
+
     QPen caneta;
     caneta.setBrush(Qt::green);
     caneta.setWidth(4);
+    paint.setBrush(Qt::green);
     paint.setPen(caneta);
-    paint.drawPolyline(this->posicoesWandUp);
-    paint.drawPolyline(this->posicoesWandDown);
+
+    paint.drawRect(this->posicaoXCanoDownI, this->posicaoYCanoDownI, 70, this->heightCanoDownI);
+    paint.drawRect(this->posicaoXCanoUpI, 0, 70, this->heightCanoUpI);
+
+    paint.drawRect(this->posicaoXCanoDownII, this->posicaoYCanoDownII, 70, this->heightCanoDownII);
+    paint.drawRect(this->posicaoXCanoUpII, 0, 70, this->heightCanoUpII);
 }
