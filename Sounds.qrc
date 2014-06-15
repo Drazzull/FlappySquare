@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/">
+        <file>sounds/coin.wav</file>
+        <file>sounds/dead.wav</file>
+        <file>sounds/flap.wav</file>
+    </qresource>
+</RCC>

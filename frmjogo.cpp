@@ -14,10 +14,18 @@ void FrmJogo::reset()
     this->constantDt = 1000 / this->fps;
     this->lastTime = QDateTime::currentMSecsSinceEpoch();
     this->accumulator60 = 0;
+
+    this->tori->reset();
+    this->wand->reset();
+    Funcoes::RedefinirPropriedades();
 }
 
 FrmJogo::FrmJogo()
 {
+    Funcoes::playerDead->setMedia(QUrl("qrc:///sounds/dead.wav"));
+    Funcoes::playerCoin->setMedia(QUrl("qrc:///sounds/coin.wav"));
+    Funcoes::playerFlap->setMedia(QUrl("qrc:///sounds/flap.wav"));
+
     this->timerRepaint = new QTimer(this);
     this->tori = new Tori();
     this->wand = new Wand();
@@ -83,8 +91,8 @@ void FrmJogo::paintEvent(QPaintEvent* event)
     font.setPointSize(font.pointSize() * 2);
     paint.setFont(font);
 
-    this->tori->ziehen(paint);
     this->wand->ziehen(paint);
+    this->tori->ziehen(paint);
 
     paint.setPen(Qt::black);
     paint.setBrush(Qt::black);
@@ -98,10 +106,11 @@ void FrmJogo::paintEvent(QPaintEvent* event)
     {
         paint.drawText(100, 130, " GAMEOVER! ");
         paint.drawText(100, 160, "Press Space");
+        return;
     }
 
-    Funcoes::detectarColisaoCanos(this->tori, this->wand);
-    Funcoes::detectarColisaoChao(this->tori->getPosicaoToriY());
+    Funcoes::DetectarColisaoCanos(this->tori, this->wand);
+    Funcoes::DetectarColisaoChao(this->tori->getPosicaoToriY());
 }
 
 void FrmJogo::keyPressEvent(QKeyEvent *event)
@@ -113,8 +122,6 @@ void FrmJogo::keyPressEvent(QKeyEvent *event)
         if (Tori::morto)
         {
             this->reset();
-            this->tori->reset();
-            this->wand->reset();
         }
 
         if (!Funcoes::started)

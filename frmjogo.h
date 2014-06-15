@@ -9,6 +9,7 @@
 #include <QDateTime>
 #include <tori.h>
 #include <wand.h>
+#include <QMediaPlayer>
 
 class FrmJogo: public QFrame
 {

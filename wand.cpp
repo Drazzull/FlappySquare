@@ -106,6 +106,8 @@ void Wand::callWandI()
         return;
     }
 
+    Funcoes::pontoMarcadoI = false;
+
     // A falha deve ficar entre 150 e 550
     int falhaEntreCanos = FrmJogo::heightFrm - ((rand() % 400) + 150);
 
@@ -140,6 +142,8 @@ void Wand::callWandII()
     {
         return;
     }
+
+    Funcoes::pontoMarcadoII = false;
 
     // A falha deve ficar entre 150 e 550
     int falhaEntreCanos = FrmJogo::heightFrm - ((rand() % 400) + 150);

@@ -15,6 +15,7 @@ void Tori::reset()
     Tori::morto = false;
     this->toriHeight = 22;
     this->toriWidth = 27;
+    this->rotation = 0;
     this->timer->stop();
     this->timer->start(100);
 }
@@ -51,21 +52,20 @@ int Tori::getToriHeight()
 
 void Tori::move(float dt)
 {
-    // Se está morto não realiza update
-    if (Tori::morto)
-    {
-        return;
-    }
-
     /* Atualiza a posição do pássaro */
     if (this->posicaoDy > 0)
     {
-
         this->posicaoToriY += std::ceil((this->posicaoDy * dt * 60) / 1000);
     }
     else
     {
         this->posicaoToriY += std::floor((this->posicaoDy * dt * 60) / 1000);
+    }
+
+    // Posição máxima em relação ao chão
+    if (this->posicaoToriY > 580)
+    {
+        this->posicaoToriY = 580;
     }
 
     // Zera a variável para que o mesmo se mova somente quando necessário
@@ -79,7 +79,11 @@ void Tori::ziehen(QPainter &paint)
 
     if (Funcoes::started)
     {
+        /*paint.save();
+        paint.translate(70, this->posicaoToriY);
+        paint.rotate(this->rotation);*/
         paint.drawRect(70, this->posicaoToriY, this->toriWidth, this->toriHeight);
+        /*paint.restore();*/
         return;
     }
 
@@ -99,10 +103,18 @@ void Tori::cair()
     {
         this->gravidade = 30;
     }
+
+    this->rotation += 10;
+    if(this->rotation > 90)
+    {
+        this->rotation = 90;
+    }
 }
 
 void Tori::flapUp()
 {
+    Funcoes::TocarSom('F');
+    this->rotation = -20;
     this->gravidade = 2;
     this->posicaoDy -= 70;
 }

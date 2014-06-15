@@ -5,6 +5,12 @@
 bool Funcoes::started = false;
 int Funcoes::contadorMortes = 0;
 int Funcoes::pontosJogador = 0;
+bool Funcoes::pontoMarcadoI = true;
+bool Funcoes::pontoMarcadoII = true;
+QMediaPlayer *Funcoes::playerDead = new QMediaPlayer();
+QMediaPlayer *Funcoes::playerCoin = new QMediaPlayer();
+QMediaPlayer *Funcoes::playerFlap = new QMediaPlayer();
+QVector<QPoint> Funcoes::series;
 
 Funcoes::Funcoes()
 {
@@ -16,28 +22,43 @@ Funcoes::~Funcoes()
 
 }
 
-void Funcoes::detectarColisaoChao(int posicaoToriY)
+void Funcoes::RedefinirPropriedades()
 {
-    if(posicaoToriY >= 610)
+    Funcoes::pontosJogador = 0;
+    Funcoes::pontoMarcadoI = true;
+    Funcoes::pontoMarcadoII = true;
+}
+
+void Funcoes::DetectarColisaoChao(int posicaoToriY)
+{
+    if(posicaoToriY >= 580)
     {
-        posicaoToriY = 580;
-        Tori::morto = true;
+        Funcoes::MatarPassaro();
     }
 }
 
-void Funcoes::detectarColisaoCanos(Tori *tori, Wand *wand)
+void Funcoes::DetectarColisaoCanos(Tori *tori, Wand *wand)
 {
     /* Colisão Cano I */
     if (wand->getPosicaoXCanoUpI() < 200)
     {
         // Cano Up
-        if ((tori->getToriX() > wand->getPosicaoXCanoUpI()) &&
-                (tori->getToriX() < wand->getPosicaoXCanoUpI() + 70) &&
-                (tori->getPosicaoToriY() < (wand->getHeightCanoUpI())))
+        if (tori->getToriX() > wand->getPosicaoXCanoUpI())
         {
-            Tori::morto = true;
-            Funcoes::contadorMortes ++;
-            return;
+            if ((tori->getToriX() < wand->getPosicaoXCanoUpI() + 70) &&
+                    (tori->getPosicaoToriY() < (wand->getHeightCanoUpI())))
+            {
+                Funcoes::MatarPassaro();
+                return;
+            }
+
+            if ((!Funcoes::pontoMarcadoI) &&
+                    (tori->getToriX() >= ((wand->getPosicaoXCanoUpI() + 70) / 2)))
+            {
+                Funcoes::TocarSom('C');
+                Funcoes::pontoMarcadoI = true;
+                Funcoes::pontosJogador++;
+            }
         }
 
         // Cano Down
@@ -47,8 +68,7 @@ void Funcoes::detectarColisaoCanos(Tori *tori, Wand *wand)
                     (tori->getToriX() < wand->getPosicaoXCanoDownI() + 70) &&
                     ((tori->getPosicaoToriY() + tori->getToriHeight()) > (wand->getPosicaoYCanoDownI())))
             {
-                Tori::morto = true;
-                Funcoes::contadorMortes ++;
+                Funcoes::MatarPassaro();
                 return;
             }
         }
@@ -58,13 +78,22 @@ void Funcoes::detectarColisaoCanos(Tori *tori, Wand *wand)
     if (wand->getPosicaoXCanoUpII() < 200)
     {
         // Cano Up
-        if ((tori->getToriX() > wand->getPosicaoXCanoUpII()) &&
-                (tori->getToriX() < wand->getPosicaoXCanoUpII() + 70) &&
-                (tori->getPosicaoToriY() < (wand->getHeightCanoUpII())))
+        if (tori->getToriX() > wand->getPosicaoXCanoUpII())
         {
-            Tori::morto = true;
-            Funcoes::contadorMortes ++;
-            return;
+            if ((tori->getPosicaoToriY() < (wand->getHeightCanoUpII())) &&
+                    (tori->getToriX() < wand->getPosicaoXCanoUpII() + 70))
+            {
+                Funcoes::MatarPassaro();
+                return;
+            }
+
+            if ((!Funcoes::pontoMarcadoII) &&
+                    (tori->getToriX() >= ((wand->getPosicaoXCanoUpII() + 70) / 2)))
+            {
+                Funcoes::TocarSom('C');
+                Funcoes::pontoMarcadoII = true;
+                Funcoes::pontosJogador++;
+            }
         }
 
         // Cano Down
@@ -72,9 +101,82 @@ void Funcoes::detectarColisaoCanos(Tori *tori, Wand *wand)
                 (tori->getToriX() < wand->getPosicaoXCanoDownII() + 70) &&
                 ((tori->getPosicaoToriY() + tori->getToriHeight()) < (wand->getPosicaoYCanoDownII())))
         {
-            Tori::morto = true;
-            Funcoes::contadorMortes ++;
+            Funcoes::MatarPassaro();
             return;
         }
     }
+}
+
+void Funcoes::TocarSom(char som)
+{
+    switch(som)
+    {
+    case 'D':
+        Funcoes::playerDead->play();
+        break;
+
+    case 'C':
+        Funcoes::playerCoin->play();
+        break;
+
+    case 'F':
+        Funcoes::playerFlap->play();
+        break;
+    }
+}
+void Funcoes::MatarPassaro()
+{
+    Tori::morto = true;
+    Funcoes::TocarSom('D');
+    Funcoes::contadorMortes++;
+    Funcoes::series.append(QPoint(Funcoes::contadorMortes, Funcoes::pontosJogador));
+    if (Funcoes::contadorMortes == 5)
+    {
+        Funcoes::MostrarGrafico();
+        Funcoes::contadorMortes = 0;
+    }
+}
+
+void Funcoes::MostrarGrafico()
+{
+    // Obtém o maior valor de Y (quantidade de pontos)
+    int maior = 0;
+    for(int i = 0; i < Funcoes::series.size(); i++)
+    {
+        if (Funcoes::series[i].y() > maior)
+        {
+            maior = Funcoes::series[i].y();
+        }
+    }
+
+    // Define os valores dos eixos
+    QVector<QString> axisY;
+    axisY.append("0");
+    axisY.append(QString::number(maior * 0.25));
+    axisY.append(QString::number(maior * 0.5));
+    axisY.append(QString::number(maior * 0.75));
+    axisY.append(QString::number(maior));
+
+    QVector<QString> axisX;
+    axisX.append("1");
+    axisX.append("2");
+    axisX.append("3");
+    axisX.append("4");
+    axisX.append("5");
+
+    // cria o objeto do gráfico
+    Grafico *grafico = new Grafico();
+    grafico->addSeries(Funcoes::series, Qt::red);
+    grafico->setAxisX(axisX);
+    grafico->setAxisY(axisY);
+    grafico->setLabelX("Morte Nº");
+    grafico->setLabelY("Pontos por Morte");
+    grafico->setTitle("Resumo das Últimas 5 Mortes");
+
+    // Abre a nova janela
+    QMainWindow *window = new QMainWindow;
+    window->setWindowTitle("Pontuação Teste");
+    window->setCentralWidget(grafico);
+    window->resize(800, 600);
+    window->show();
 }

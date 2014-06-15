@@ -1,4 +1,5 @@
 QT += widgets
+QT += multimedia
 
 SOURCES += \
     main.cpp \
@@ -16,4 +17,5 @@ HEADERS += \
     funcoes.h
 
 RESOURCES += \
-    Imagens.qrc
+    Imagens.qrc \
+    Sounds.qrc

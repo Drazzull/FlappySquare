@@ -6,6 +6,7 @@
 #include <QPainter>
 #include <QTimer>
 #include <cmath>
+#include <QMediaPlayer>
 
 class Tori : public QWidget
 {
@@ -33,6 +34,7 @@ private:
     double fps;
     int posicaoToriY, posicaoDy, gravidade, toriHeight, toriWidth;
     int contadorPlanar;
+    int rotation;
     QTimer *timer;
 
     void detectarColisaoChao();
