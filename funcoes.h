@@ -22,4 +22,5 @@ public:
     static void TocarSom(char som);
     static void MatarPassaro();
     static void MostrarGrafico();
+    static void MarcarPonto(bool pontoI);
 };

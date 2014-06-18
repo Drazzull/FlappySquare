@@ -22,9 +22,9 @@ void FrmJogo::reset()
 
 FrmJogo::FrmJogo()
 {
+    Funcoes::playerFlap->setMedia(QUrl("qrc:///sounds/flap.wav"));
     Funcoes::playerDead->setMedia(QUrl("qrc:///sounds/dead.wav"));
     Funcoes::playerCoin->setMedia(QUrl("qrc:///sounds/coin.wav"));
-    Funcoes::playerFlap->setMedia(QUrl("qrc:///sounds/flap.wav"));
 
     this->timerRepaint = new QTimer(this);
     this->tori = new Tori();

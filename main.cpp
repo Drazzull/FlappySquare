@@ -11,7 +11,7 @@
 #include <QApplication>
 #include <QWidget>
 
-int main(int argc, char **argv)
+/*int main(int argc, char **argv)
 {
     QApplication app(argc, argv);
     FrmJogo* frmJogo = new FrmJogo();
@@ -24,4 +24,4 @@ int main(int argc, char **argv)
     window.show();
 
     return app.exec();
-}
+}*/

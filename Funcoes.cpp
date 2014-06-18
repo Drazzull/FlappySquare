@@ -7,9 +7,9 @@ int Funcoes::contadorMortes = 0;
 int Funcoes::pontosJogador = 0;
 bool Funcoes::pontoMarcadoI = true;
 bool Funcoes::pontoMarcadoII = true;
+QMediaPlayer *Funcoes::playerFlap = new QMediaPlayer();
 QMediaPlayer *Funcoes::playerDead = new QMediaPlayer();
 QMediaPlayer *Funcoes::playerCoin = new QMediaPlayer();
-QMediaPlayer *Funcoes::playerFlap = new QMediaPlayer();
 QVector<QPoint> Funcoes::series;
 
 Funcoes::Funcoes()
@@ -55,9 +55,7 @@ void Funcoes::DetectarColisaoCanos(Tori *tori, Wand *wand)
             if ((!Funcoes::pontoMarcadoI) &&
                     (tori->getToriX() >= ((wand->getPosicaoXCanoUpI() + 70) / 2)))
             {
-                Funcoes::TocarSom('C');
-                Funcoes::pontoMarcadoI = true;
-                Funcoes::pontosJogador++;
+                Funcoes::MarcarPonto(true);
             }
         }
 
@@ -80,8 +78,8 @@ void Funcoes::DetectarColisaoCanos(Tori *tori, Wand *wand)
         // Cano Up
         if (tori->getToriX() > wand->getPosicaoXCanoUpII())
         {
-            if ((tori->getPosicaoToriY() < (wand->getHeightCanoUpII())) &&
-                    (tori->getToriX() < wand->getPosicaoXCanoUpII() + 70))
+            if ((tori->getToriX() < wand->getHeightCanoUpII()) &&
+                    (tori->getPosicaoToriY() < (wand->getPosicaoXCanoUpII()) + 70))
             {
                 Funcoes::MatarPassaro();
                 return;
@@ -90,19 +88,20 @@ void Funcoes::DetectarColisaoCanos(Tori *tori, Wand *wand)
             if ((!Funcoes::pontoMarcadoII) &&
                     (tori->getToriX() >= ((wand->getPosicaoXCanoUpII() + 70) / 2)))
             {
-                Funcoes::TocarSom('C');
-                Funcoes::pontoMarcadoII = true;
-                Funcoes::pontosJogador++;
+                Funcoes::MarcarPonto(false);
             }
         }
 
         // Cano Down
-        if ((tori->getToriX() > wand->getPosicaoXCanoDownII()) &&
-                (tori->getToriX() < wand->getPosicaoXCanoDownII() + 70) &&
-                ((tori->getPosicaoToriY() + tori->getToriHeight()) < (wand->getPosicaoYCanoDownII())))
+        if (wand->getPosicaoXCanoUpII() < 200)
         {
-            Funcoes::MatarPassaro();
-            return;
+            if ((tori->getToriX() > wand->getPosicaoXCanoDownII()) &&
+                    (tori->getToriX() < wand->getPosicaoXCanoDownII() + 70) &&
+                    ((tori->getPosicaoToriY() + tori->getToriHeight()) > (wand->getPosicaoYCanoDownII  ())))
+            {
+                Funcoes::MatarPassaro();
+                return;
+            }
         }
     }
 }
@@ -124,6 +123,7 @@ void Funcoes::TocarSom(char som)
         break;
     }
 }
+
 void Funcoes::MatarPassaro()
 {
     Tori::morto = true;
@@ -135,6 +135,20 @@ void Funcoes::MatarPassaro()
         Funcoes::MostrarGrafico();
         Funcoes::contadorMortes = 0;
     }
+}
+
+void Funcoes::MarcarPonto(bool pontoI)
+{
+    Funcoes::TocarSom('C');
+    if (pontoI)
+    {
+        Funcoes::pontoMarcadoI = true;
+    }
+    else
+    {
+        Funcoes::pontoMarcadoII = true;
+    }
+    Funcoes::pontosJogador++;
 }
 
 void Funcoes::MostrarGrafico()
@@ -151,6 +165,7 @@ void Funcoes::MostrarGrafico()
 
     // Define os valores dos eixos
     QVector<QString> axisY;
+    axisY.clear();
     axisY.append("0");
     axisY.append(QString::number(maior * 0.25));
     axisY.append(QString::number(maior * 0.5));
@@ -158,6 +173,7 @@ void Funcoes::MostrarGrafico()
     axisY.append(QString::number(maior));
 
     QVector<QString> axisX;
+    axisX.clear();
     axisX.append("1");
     axisX.append("2");
     axisX.append("3");
@@ -179,4 +195,6 @@ void Funcoes::MostrarGrafico()
     window->setCentralWidget(grafico);
     window->resize(800, 600);
     window->show();
+
+    Funcoes::series.clear();
 }

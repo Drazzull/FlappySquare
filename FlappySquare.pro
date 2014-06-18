@@ -7,7 +7,8 @@ SOURCES += \
     tori.cpp \
     wand.cpp \
     frmjogo.cpp \
-    funcoes.cpp
+    funcoes.cpp \
+    linechart_test.cpp
 
 HEADERS += \
     grafico.h \

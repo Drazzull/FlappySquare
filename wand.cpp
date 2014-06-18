@@ -113,7 +113,7 @@ void Wand::callWandI()
 
     this->posicaoXCanoUpI = 430;
     this->posicaoXCanoDownI = 430;
-    this->posicaoYCanoDownI = (falhaEntreCanos + 100);
+    this->posicaoYCanoDownI = (falhaEntreCanos + 110);
 
     this->heightCanoUpI = (falhaEntreCanos);
     this->heightCanoDownI = (450);
@@ -151,7 +151,7 @@ void Wand::callWandII()
     this->posicaoXCanoUpII = 430;
     this->posicaoXCanoUpII = 430;
     this->posicaoXCanoDownII = 430;
-    this->posicaoYCanoDownII = (falhaEntreCanos + 100);
+    this->posicaoYCanoDownII = (falhaEntreCanos + 110);
 
     this->heightCanoUpII = (falhaEntreCanos);
     this->heightCanoDownII = (450);

@@ -1,26 +1,131 @@
 #include "grafico.h"
 
-///
-/// \brief Grafico::redimensionarVetorX - Redimensiona o eixo X do vetor
-///
+Grafico::Grafico()
+{
+    this->heightGrid = this->height();
+    this->widthGrid = this->width();
+    this->setFrameShape(QFrame::StyledPanel);
+    this->setFrameShadow(QFrame::Sunken);
+    this->setMinimumSize(1024, 768);
+}
+
+Grafico::~Grafico()
+{
+
+}
+
+void Grafico::addSeries(QVector<QPoint> series, QColor color){
+    this->vetorOriginal.append(series);
+    this->corGrafico.append(color);
+}
+
+void Grafico::setAxisX(QVector<QString> values)
+{
+    this->eixoX = values;
+
+    // Fixa um valor disponível, no caso do menor valor ser maior que zero
+    this->maiorX = this->eixoX[this->eixoX.size() - 1].toDouble();
+    this->menorX = this->eixoX[0].toDouble();
+}
+
+void Grafico::setAxisY(QVector<QString> values)
+{
+    this->eixoY = values;
+
+    // Fixa um valor disponível, no caso do menor valor ser maior que zero
+    this->maiorY = this->eixoY[this->eixoY.size() - 1].toDouble();
+    this->menorY = this->eixoY[0].toDouble();
+}
+
+void Grafico::setLabelX(QString nome)
+{
+    this->labelX = nome;
+}
+
+void Grafico::setLabelY(QString nome)
+{
+    this->labelY = nome;
+}
+
+void Grafico::setTitle(QString tituloGrafico)
+{
+    this->tituloGrafico = tituloGrafico;
+}
+
+void Grafico::calcularValoresFixos()
+{
+    /* Menor Ponto dos Eixos */
+    // Eixo X
+    for(int j=0; j < this->vetorOriginal.length(); j++)
+    {
+        QVector<QPoint> vetorOrigem = this->vetorOriginal[j];
+        for(int i = 0; i < vetorOrigem.length(); i++)
+        {
+            if (vetorOrigem[i].x() > this->maiorX)
+            {
+                this->maiorX = vetorOrigem[i].x();
+            }
+
+            if (this->menorX > vetorOrigem[i].x())
+            {
+                this->menorX = vetorOrigem[i].x();
+            }
+        }
+
+        // Eixo Y
+        for(int i = 0; i < vetorOrigem.length(); i++)
+        {
+            if (vetorOrigem[i].y() > this->maiorY)
+            {
+                this->maiorY = vetorOrigem[i].y();
+            }
+
+            if (this->menorY > vetorOrigem[i].y())
+            {
+                this->menorY = vetorOrigem[i].y();
+            }
+        }
+    }
+
+    /* Menor texto */
+    // Eixo X
+    for(int i = 0; i < this->eixoX.size(); i++)
+    {
+        if (eixoX[i].toDouble() > this->maiorX)
+        {
+            this->maiorX = eixoX[i].toDouble();
+        }
+
+        if (this->menorX > eixoX[i].toDouble())
+        {
+            this->menorX = eixoX[i].toDouble();
+        }
+    }
+
+    // Eixo Y
+    for(int i = 0; i < eixoY.size(); i++)
+    {
+        if (eixoY[i].toDouble() > this->maiorY)
+        {
+            this->maiorY = eixoY[i].toDouble();
+        }
+
+        if (this->menorY > eixoY[i].toDouble())
+        {
+            this->menorY = eixoY[i].toDouble();
+        }
+    }
+
+    // Outros Valores
+    this->intervaloEixoX = this->maiorX - this->menorX;
+    this->percMenorX = ((this->menorX * 100) / this->intervaloEixoX);
+    this->intervaloEixoY = this->maiorY - this->menorY;
+    this->percMenorY = ((this->menorY * 100) / this->intervaloEixoY);
+}
+
 QVector<QPoint> Grafico::redimensionarVetorX(QVector<QPoint> vetorOrigem)
 {
     QVector<QPoint> vetorRedimensionar = vetorOrigem;
-
-    // Obtém o último valor de X - será usado como base para posicionamento dos demais valores
-    double menorX = vetorOrigem[0].x();
-    for(int i = 0; i < vetorOrigem.length(); i++)
-    {
-        if (vetorOrigem[i].x() > this->maiorX)
-        {
-            this->maiorX = vetorOrigem[i].x();
-        }
-
-        if (menorX > vetorOrigem[i].x())
-        {
-            menorX = vetorOrigem[i].x();
-        }
-    }
 
     // Posição máxima e mínima que pode ter no grid
     double posMaiorX = this->widthGrid + ((this->width() - this->widthGrid) / 2);
@@ -31,7 +136,7 @@ QVector<QPoint> Grafico::redimensionarVetorX(QVector<QPoint> vetorOrigem)
     for(int i = 0; i < vetorOrigem.length(); i++)
     {
         // Acha o percentual que o novo valor representa em relação ao maior
-        double percX = ((vetorOrigem[i].x() * 100) / this->maiorX);
+        double percX = ((vetorOrigem[i].x() * 100) / this->intervaloEixoX) - this->percMenorX;
 
         // Calcula o valor da nova posição
         double posXValor = posMenorX + ((intervalo * percX) / 100);
@@ -41,27 +146,9 @@ QVector<QPoint> Grafico::redimensionarVetorX(QVector<QPoint> vetorOrigem)
     return vetorRedimensionar;
 }
 
-///
-/// \brief Grafico::redimensionarVetorY - Redimensiona o eixo Y do vetor
-///
 QVector<QPoint> Grafico::redimensionarVetorY(QVector<QPoint> vetorOrigem)
 {
     QVector<QPoint> vetorRedimensionar = vetorOrigem;
-
-    // Obtém o maior valor de Y
-    double menorY = vetorOrigem[0].y();
-    for(int i = 0; i < vetorOrigem.length(); i++)
-    {
-        if (vetorOrigem[i].y() > this->maiorY)
-        {
-            this->maiorY = vetorOrigem[i].y();
-        }
-
-        if (menorY > vetorOrigem[i].y())
-        {
-            menorY = vetorOrigem[i].y();
-        }
-    }
 
     double posMaiorY = ((this->height() - this->heightGrid) / 2);
     double posMenorY = this->heightGrid + ((this->height() - this->heightGrid) / 2);
@@ -71,7 +158,7 @@ QVector<QPoint> Grafico::redimensionarVetorY(QVector<QPoint> vetorOrigem)
     for(int i = 0; i < vetorOrigem.length(); i++)
     {
         // Acha o percentual que o novo valor representa em relação ao maior
-        double percY = ((vetorOrigem[i].y() * 100) / this->maiorY);
+        double percY = ((vetorOrigem[i].y() * 100) / this->intervaloEixoY) - this->percMenorY;
 
         // Calcula o valor da nova posição
         double posYValor = posMenorY + ((intervalo * percY) / 100);
@@ -80,85 +167,57 @@ QVector<QPoint> Grafico::redimensionarVetorY(QVector<QPoint> vetorOrigem)
 
     return vetorRedimensionar;
 }
-///
-/// \brief Grafico::Grafico - Construtor sem parâmetros
-///
-Grafico::Grafico()
+
+void Grafico::redimensionarEixoX(QPainter& paint)
 {
-    this->heightGrid = this->height();
-    this->widthGrid = this->width();
-    this->setFrameShape(QFrame::StyledPanel);
-    this->setFrameShadow(QFrame::Sunken);
-    this->setMinimumSize(600, 400);
+    // Obtém o último valor de X - será usado como base para posicionamento dos demais valores
+    double posMaiorX = this->widthGrid + ((this->width() - this->widthGrid) / 2);
+    double posMenorX = (this->width() - this->widthGrid) / 2;
+    double intervalo = posMaiorX - posMenorX;
+
+    // Percorre o array pintando os valores do eixo X
+    int yTemp = 20 + this->heightGrid + ((this->height() - this->heightGrid) / 2);
+    for(int i = 0; i < this->eixoX.size(); i++)
+    {
+        double percX = 0;
+        double posXValor = 0;
+
+        // Acha o percentual que o novo valor representa em relação ao maior
+        percX = ((this->eixoX[i].toDouble() * 100) / this->intervaloEixoX) - this->percMenorX;
+
+        // Calcula o valor da nova posição
+        posXValor = ((percX * intervalo) / 100) + posMenorX;
+        paint.drawText(posXValor, yTemp, this->eixoX[i]);
+    }
 }
 
-///
-/// \brief Grafico::~Grafico - Desconstrutor
-///
-Grafico::~Grafico()
+void Grafico::redimensionarEixoY(QPainter& paint)
 {
+    // Obtém o último valor de Y - será usado como base para posicionamento dos demais valores
+    double posMaiorY = ((this->height() - this->heightGrid) / 2);
+    double posMenorY = this->heightGrid + ((this->height() - this->heightGrid) / 2);
+    double intervalo = posMenorY - posMaiorY;
 
+    // Percorre o array pintando os valores do eixo Y
+    int xTemp = ((this->width() - this->widthGrid) / 2) - 30;
+    for(int i = 0; i < eixoY.size(); i++)
+    {
+        // Variáveis de controle
+        double percY = 0;
+        double posYValor = 0;
+
+        // Acha o percentual que o novo valor representa em relação ao maior
+        percY = 100 - ((this->eixoY[i].toDouble() * 100) / this->intervaloEixoY) + this->percMenorY;
+
+        // Calcula o valor da nova posição
+        posYValor = ((percY * intervalo)/100) + posMaiorY;
+        paint.drawText(xTemp, posYValor, this->eixoY[i]);
+        paint.setPen(Qt::gray);
+        paint.drawLine(xTemp + 30, posYValor, (xTemp + 30) + this->widthGrid, posYValor);
+        paint.setPen(Qt::black);
+    }
 }
 
-///
-/// \brief Grafico::addSeries - Adiciona um vetor de pontos à tela
-/// \param series - Vetor de pontos
-/// \param color - Cor dos pontos
-///
-void Grafico::addSeries(QVector<QPoint> series, QColor color){
-    this->vetorOriginal.append(series);
-    this->corGrafico.append(color);
-}
-
-///
-/// \brief setAxisX - Define os valores do eixo X
-/// \param values - Valores do eixo X
-///
-void Grafico::setAxisX(QVector<QString> values)
-{
-    this->eixoX = values;
-}
-
-///
-/// \brief setAxisY - Define os valores do eixo Y
-/// \param values - Valores do eixo Y
-///
-void Grafico::setAxisY(QVector<QString> values)
-{
-    this->eixoY = values;
-}
-
-///
-/// \brief setLabelX - Define um apelido pro eixo X
-/// \param name - apelido
-///
-void Grafico::setLabelX(QString nome)
-{
-    this->labelX = nome;
-}
-
-///
-/// \brief setLabelY
-/// \param name
-///
-void Grafico::setLabelY(QString nome)
-{
-    this->labelY = nome;
-}
-
-///
-/// \brief setTitle
-/// \param title
-///
-void Grafico::setTitle(QString tituloGrafico)
-{
-    this->tituloGrafico = tituloGrafico;
-}
-
-///
-/// \brief Grafico::paintEvent - Evento de pintura da tela
-/// \param event - Evento de pintura
-///
 void Grafico::paintEvent(QPaintEvent* event){
     QFrame::paintEvent(event);
 
@@ -186,59 +245,14 @@ void Grafico::paintEvent(QPaintEvent* event){
     yTemp = (this->height() - this->heightGrid)/2;
     paint.drawRect(xTemp, yTemp, this->widthGrid, this->heightGrid);
 
+    // Recalcula os valores fixos antes de repintar a tela
+    this->calcularValoresFixos();
+
     /* Eixo X */
-    // Obtém o último valor de X - será usado como base para posicionamento dos demais valores
-    this->maiorX = this->eixoX[this->eixoX.size() - 1].toDouble();
-    double menorX = this->eixoX[0].toDouble();
-    double posMaiorX = this->widthGrid + ((this->width() - this->widthGrid) / 2);
-    double posMenorX = (this->width() - this->widthGrid) / 2;
-
-    // Percorre o array pintando os valores do eixo X
-    yTemp = 20 + this->heightGrid + ((this->height() - this->heightGrid) / 2);
-    for(int i = 0; i < this->eixoX.size(); i++)
-    {
-        double percX = 0;
-        double posXValor = 0;
-        double intervalo = posMaiorX - posMenorX;
-        if (this->eixoX[i].toDouble() == menorX)
-        {
-            paint.drawText(posMenorX, yTemp, this->eixoX[i]);
-            continue;
-        }
-
-        // Acha o percentual que o novo valor representa em relação ao maior
-        percX = ((this->eixoX[i].toDouble() * 100) / this->maiorX);
-
-        // Calcula o valor da nova posição
-        posXValor = ((percX * intervalo) / 100) + posMenorX;
-        paint.drawText(posXValor, yTemp, this->eixoX[i]);
-    }
+    this->redimensionarEixoX(paint);
 
     /* Eixo Y */
-    // Obtém o último valor de Y - será usado como base para posicionamento dos demais valores
-    this->maiorY = this->eixoY[this->eixoY.size() - 1].toDouble();
-    double posMaiorY = ((this->height() - this->heightGrid) / 2);
-    double posMenorY = this->heightGrid + ((this->height() - this->heightGrid) / 2);
-
-    // Percorre o array pintando os valores do eixo Y
-    xTemp = ((this->width() - this->widthGrid) / 2) - 30;
-    for(int i = 0; i < eixoY.size(); i++)
-    {
-        // Variáveis de controle
-        double percY = 0;
-        double posYValor = 0;
-        double intervalo = posMenorY - posMaiorY;
-
-        // Acha o percentual que o novo valor representa em relação ao maior
-        percY = 100 - ((this->eixoY[i].toDouble() * 100) / this->maiorY);
-
-        // Calcula o valor da nova posição
-        posYValor = ((percY * intervalo)/100) + posMaiorY;
-        paint.drawText(xTemp, posYValor, this->eixoY[i]);
-        paint.setPen(Qt::gray);
-        paint.drawLine(xTemp + 30, posYValor, (xTemp + 30) + this->widthGrid, posYValor);
-        paint.setPen(Qt::black);
-    }
+    this->redimensionarEixoY(paint);
 
     /* Corrige a fonte para os títulos */
     font.setPointSize(font.pointSize() * 2);
@@ -274,7 +288,10 @@ void Grafico::paintEvent(QPaintEvent* event){
         vetorRedimensionar = this->redimensionarVetorY(vetorRedimensionar);
 
         // Muda a cor de acordo com a cor do gráfico atual e pinta a cor
-        paint.setPen(this->corGrafico[i]);
+        QPen caneta;
+        caneta.setColor(this->corGrafico[i]);
+        caneta.setWidth(2);
+        paint.setPen(caneta);
         paint.drawPolyline(vetorRedimensionar);
     }
 }
